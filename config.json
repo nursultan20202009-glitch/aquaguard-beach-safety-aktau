@@ -1,0 +1,13 @@
+{
+  "beach": "Актау · акватория у пляжа Шағала",
+  "zone": "Сектор A · тестовая точка в море",
+  "latitude": 43.6260,
+  "longitude": 51.1735,
+  "coordinate_kind": "test_zone",
+  "map_points": [
+    {"id": "A", "name": "Сектор A", "latitude": 43.6260, "longitude": 51.1735}
+  ],
+  "dwell_seconds": 0.6,
+  "alert_cooldown_seconds": 10.0,
+  "video_zone": [0.35, 0.50, 0.68, 0.88]
+}

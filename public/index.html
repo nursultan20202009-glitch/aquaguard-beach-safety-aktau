@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1420">
+  <title>AquaGuard Aktau — диспетчер пляжной безопасности</title>
+  <link rel="stylesheet" href="/vendor/leaflet.css">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/map.css">
+  <link rel="stylesheet" href="/case.css">
+  <link rel="stylesheet" href="/navigation.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><strong>AQUAGUARD</strong><small>Безопасность пляжей · Актау</small></div>
+      </div>
+      <div class="topbar-right">
+        <span class="demo-pill">MVP · ТЕСТОВЫЙ СЦЕНАРИЙ</span>
+        <div class="clock-wrap"><span id="clock">--:--:--</span><small>время Актау</small></div>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">SMART CITY AKTAU / ПАНЕЛЬ СПАСАТЕЛЯ</div>
+          <h1>Контроль опасной зоны A</h1>
+          <p>Человек в отмеченной зоне создаёт запрос на проверку оператором.</p>
+        </div>
+        <div id="system-status" class="system-status"><span class="pulse"></span><span>Подключение к серверу…</span></div>
+      </div>
+
+      <section class="info-banner" aria-label="О демонстрации">
+        <div class="info-icon">i</div>
+        <div><strong id="source-info-title">Демонстрация на съёмке пляжа с дрона</strong><p id="source-info-text">Тестовый ролик снят не в Актау и не на Каспийском море. Красная зона A и точка на карте заданы для демонстрации; геопозиция человека из кадра не определяется.</p><a id="source-credit" href="https://www.pexels.com/video/drone-view-of-people-swimming-in-the-sea-12943959/" target="_blank" rel="noopener noreferrer">Источник видео: Caden Knappier / Pexels ↗</a></div>
+      </section>
+
+      <nav class="workspace-tabs" aria-label="Разделы диспетчерской">
+        <button type="button" class="workspace-tab active" data-view-target="video" aria-selected="true"><span class="tab-number">01</span><span>Видеонаблюдение</span></button>
+        <button type="button" class="workspace-tab" data-view-target="alerts" aria-selected="false"><span class="tab-number">02</span><span>Тревоги</span><span id="nav-alert-count" class="nav-alert-count" hidden>0</span></button>
+        <button type="button" class="workspace-tab" data-view-target="map" aria-selected="false"><span class="tab-number">03</span><span>Карта и журнал</span></button>
+      </nav>
+
+      <div class="workspace-grid" data-active-view="video">
+        <section class="panel video-panel" data-view="video" aria-labelledby="video-title">
+          <div class="panel-head">
+            <div><div class="section-kicker">01 / ВИДЕОАНАЛИТИКА</div><h2 id="video-title">Видеопоток</h2></div>
+            <span id="source-badge" class="source-badge">Тестовый ролик</span>
+          </div>
+          <div id="source-selector" class="source-selector" aria-label="Выбор тестового видео">
+            <div><strong>Источник для показа</strong><span>Переключение меняет видеопоток модели</span></div>
+            <div class="source-options">
+              <button type="button" data-source="coast" class="active">Обзор воды · дрон</button>
+              <button type="button" data-source="detection">Проверка тревоги · пловец в воде</button>
+            </div>
+          </div>
+          <div class="video-stage">
+            <img id="live-frame" alt="Видеокадр с рамками обнаруженных людей и тестовой зоной">
+            <div id="video-placeholder" class="video-placeholder"><div class="spinner"></div><span>Запуск модели и видеопотока…</span></div>
+            <div class="video-corner top-left"><span class="live-dot"></span> АНАЛИЗ КАДРА</div>
+            <div class="video-corner bottom-left" id="frame-counter">КАДР —</div>
+            <div class="video-corner bottom-right">YOLOv8n · PERSON</div>
+          </div>
+          <div class="video-footer">
+            <div class="legend"><span class="legend-swatch red"></span> Тестовая опасная зона <span class="legend-swatch green"></span> Человек вне зоны</div>
+            <div id="people-count" class="people-count">Людей в кадре: —</div>
+          </div>
+          <div class="video-note">Тревога создаётся автоматически после <span id="dwell-label">0,6</span> сек. нахождения одного отслеживаемого человека в зоне.</div>
+        </section>
+
+        <section class="panel alerts-panel" data-view="alerts" aria-labelledby="alerts-title">
+          <div class="panel-head">
+            <div><div class="section-kicker">02 / РЕАГИРОВАНИЕ</div><h2 id="alerts-title">События</h2></div>
+            <span id="open-count" class="count-badge">0 активных</span>
+          </div>
+          <div class="alert-toolbar">
+            <div class="tabs" role="group" aria-label="Фильтр событий">
+              <button class="tab active" data-filter="all" type="button">Все</button>
+              <button class="tab" data-filter="open" type="button">Активные</button>
+              <button class="tab" data-filter="closed" type="button">Закрытые</button>
+            </div>
+            <button id="restart-demo" class="restart-button" type="button" title="Начать тестовый ролик с первого кадра">↻ <span>Повторить</span></button>
+          </div>
+          <div id="event-list" class="event-list"><div class="empty-state"><div class="empty-icon">◎</div><strong>Ожидаем обнаружение</strong><p>Первое событие появится, когда человек пробудет в красной зоне заданное время.</p></div></div>
+          <div class="alerts-footer"><span class="sync-dot"></span> Список обновляется автоматически каждые 1,5 секунды</div>
+        </section>
+
+        <section id="map-panel" class="panel map-panel" data-view="map" aria-labelledby="map-title" tabindex="-1">
+          <div class="panel-head map-heading">
+            <div><div class="section-kicker">03 / ГЕОПОЗИЦИЯ</div><h2 id="map-title">Карта Актау</h2></div>
+            <span id="map-tag" class="map-tag">1 ТЕСТОВАЯ ТОЧКА</span>
+          </div>
+          <div class="map-layout">
+            <div class="map-frame"><div id="map-canvas" role="img" aria-label="Карта Каспийского моря у Актау с тестовой точкой A"></div></div>
+            <div class="location-card">
+              <div class="location-pin">⌖</div>
+              <div id="location-label" class="location-label">ТЕСТОВАЯ ТОЧКА В МОРЕ</div>
+              <h3 id="location-title">Актау · акватория у пляжа Шағала</h3>
+              <p id="location-zone">Сектор A · тестовая точка в море</p>
+              <p id="map-event-meta" class="map-event-meta">Выберите тревогу для просмотра</p>
+              <div class="map-legend"><span class="legend-sea-dot active">!</span><span>выбранная тревога</span><span class="legend-sea-dot">A</span><span>тестовая точка</span></div>
+              <div class="coordinate-box"><span>ШИРОТА</span><strong id="lat">43.6260000</strong><span>ДОЛГОТА</span><strong id="lon">51.1735000</strong></div>
+              <p class="coordinate-note" id="coordinate-note">Тестовая геопозиция зоны. Положение человека в ролике неизвестно.</p>
+              <a id="map-link" class="map-link" target="_blank" rel="noopener noreferrer" href="https://www.openstreetmap.org/?mlat=43.626&amp;mlon=51.1735#map=16/43.626/51.1735">Открыть точку на карте ↗</a>
+            </div>
+          </div>
+        </section>
+        <section id="case-panel" class="panel case-panel" data-view="map" aria-labelledby="case-title" hidden>
+          <div class="panel-head">
+            <div><div class="section-kicker">04 / ДОСЬЕ</div><h2 id="case-title">Журнал инцидента</h2></div>
+            <span id="case-id" class="case-id"></span>
+          </div>
+          <div class="case-grid">
+            <figure class="case-evidence">
+              <img id="case-image" alt="Кадр, сохранённый при обнаружении человека">
+              <figcaption>Кадр, автоматически сохранённый вместе с тревогой</figcaption>
+            </figure>
+            <div class="case-workflow">
+              <div class="case-summary"><span id="case-status" class="case-status"></span><span id="case-coordinates"></span></div>
+              <ol id="case-timeline" class="case-timeline"></ol>
+              <label for="operator-note">Заметка спасателя</label>
+              <textarea id="operator-note" maxlength="500" rows="3" placeholder="Например: проверено по камере, нужна дополнительная оценка"></textarea>
+              <div class="case-actions">
+                <button id="save-note" data-save-note type="button">Сохранить заметку</button>
+                <span id="note-save-status" role="status"></span>
+                <a id="report-link" target="_blank" rel="noopener noreferrer" href="#">Печатный отчёт ↗</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer"><span>AQUAGUARD AKTAU / Smart City Aktau</span><span>Обнаружение человека и входа в тестовую зону. Система не распознаёт утопление.</span><a id="support-link" href="https://github.com/nursultan20202009-glitch/aquaguard-beach-safety-aktau/issues" target="_blank" rel="noopener noreferrer">Техподдержка · GitHub Issues ↗</a></footer>
+  </div>
+  <script src="/vendor/leaflet.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

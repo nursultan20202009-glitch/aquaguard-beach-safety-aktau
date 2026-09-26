@@ -1,0 +1,5 @@
+.deps/
+.runtime/
+__pycache__/
+data*/
+*.sqlite3*

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карточка инцидента · AquaGuard Aktau</title>
+  <link rel="stylesheet" href="/report.css">
+</head>
+<body>
+  <div class="report-shell">
+    <nav class="screen-controls" aria-label="Действия с отчётом">
+      <a href="/">← Панель диспетчера</a>
+      <button id="print-report" type="button">Распечатать / сохранить PDF</button>
+    </nav>
+    <main id="report" class="report" hidden>
+      <header class="report-head">
+        <div class="brand"><span class="brand-icon">≋</span><div><strong>AQUAGUARD</strong><small>Smart City Aktau · MVP</small></div></div>
+        <div class="head-meta"><span>КАРТОЧКА ИНЦИДЕНТА</span><strong id="report-number">—</strong></div>
+      </header>
+      <div class="report-title">
+        <div><p class="eyebrow">СОБЫТИЕ ВИДЕОАНАЛИТИКИ</p><h1 id="event-type">Загрузка…</h1><p id="event-location">—</p></div>
+        <span id="report-status" class="status">—</span>
+      </div>
+      <section class="evidence">
+        <div class="section-heading"><h2>Кадр обнаружения</h2><span id="capture-time">—</span></div>
+        <img id="report-snapshot" alt="Кадр, сохранённый сервером при создании тревоги">
+        <p>Исходное свидетельство события: кадр сохранён сервером вместе с записью в SQLite.</p>
+      </section>
+      <div class="report-columns">
+        <section>
+          <div class="section-heading"><h2>Геопозиция зоны</h2></div>
+          <p id="zone-name" class="zone-name">—</p>
+          <div class="coordinates"><div><span>ШИРОТА</span><strong id="latitude">—</strong></div><div><span>ДОЛГОТА</span><strong id="longitude">—</strong></div></div>
+          <p id="coordinate-warning" class="warning"></p>
+          <a id="osm-link" target="_blank" rel="noopener noreferrer" href="#">Открыть точку на OpenStreetMap ↗</a>
+        </section>
+        <section>
+          <div class="section-heading"><h2>Хронология</h2></div>
+          <ol id="report-timeline" class="timeline"></ol>
+          <div class="model-meta"><span id="source-label"></span><span id="track-meta"></span></div>
+        </section>
+      </div>
+      <section class="note-section"><div class="section-heading"><h2>Заметка спасателя</h2></div><p id="operator-note">—</p></section>
+      <footer><strong>AQUAGUARD AKTAU / Smart City Aktau</strong><span>Система сообщает о человеке в заданной зоне для проверки оператором. Модель не определяет утопление. Поддержка: github.com/nursultan20202009-glitch/aquaguard-beach-safety-aktau/issues</span></footer>
+    </main>
+    <div id="report-error" class="report-error" role="alert">Загрузка карточки инцидента…</div>
+  </div>
+  <script src="/report.js" defer></script>
+</body>
+</html>
