@@ -236,6 +236,7 @@ async function fetchState() {
     }
     $('#map-tag').textContent = data.map_points?.length === 1 ? '1 ТЕСТОВАЯ ТОЧКА' : data.map_points?.length ? `${data.map_points.length} ТЕСТОВЫЕ ТОЧКИ` : data.zone.coordinate_kind === 'test_zone' ? 'ТЕСТОВАЯ ТОЧКА' : 'НАСТРОЕННАЯ ЗОНА';
     $('#restart-demo').hidden = !data.is_test_source || data.video.mode !== 'detection';
+    $('#restart-video').hidden = !data.is_test_source || data.video.mode !== 'detection';
     $('#people-count').textContent = `Людей в кадре: ${data.video.ready ? data.video.people : '—'}`;
     $('#frame-counter').textContent = data.video.ready ? `КАДР ${data.video.frame_number}` : 'КАДР —';
     $('#dwell-label').textContent = String(data.zone.dwell_seconds).replace('.', ',');
@@ -351,8 +352,8 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-$('#restart-demo').addEventListener('click', async () => {
-  const button = $('#restart-demo');
+async function restartVideo(event) {
+  const button = event.currentTarget;
   button.disabled = true;
   try {
     const response = await fetch('/api/demo/restart', {method:'POST'});
@@ -360,7 +361,9 @@ $('#restart-demo').addEventListener('click', async () => {
     setSystemStatus('Тестовый ролик запускается сначала…', '');
   } catch (error) { alert(error.message); }
   finally { setTimeout(() => { button.disabled = false; }, 1000); }
-});
+}
+$('#restart-demo').addEventListener('click', restartVideo);
+$('#restart-video').addEventListener('click', restartVideo);
 
 fetchState();
 setInterval(fetchState, 1500);
